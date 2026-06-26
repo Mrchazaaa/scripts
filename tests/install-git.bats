@@ -34,3 +34,15 @@ setup() {
   assert_log_contains "sudo apt-get install -y git"
   assert_output_contains "Installed git version 2.45.0"
 }
+
+@test "install-git installs git directly when running as root" {
+  write_fake_apt_get
+
+  run_install_script_as_root "$repo_root/src/install-git.sh"
+
+  [ "$status" -eq 0 ]
+  assert_log_contains "apt-get update"
+  assert_log_contains "apt-get install -y git"
+  refute_log_contains "sudo"
+  assert_output_contains "Installed git version 2.45.0"
+}

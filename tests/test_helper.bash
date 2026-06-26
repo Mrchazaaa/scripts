@@ -55,7 +55,22 @@ printf "Docker version 27.0.0, build test\n"'
 
 write_fake_apt_get() {
   write_executable "$fake_bin/apt-get" '#!/bin/bash
-printf "apt-get %s\n" "$*" >> "$TEST_LOG"'
+printf "apt-get %s\n" "$*" >> "$TEST_LOG"
+
+if [[ "$1" == "install" ]]; then
+  shift
+  for package in "$@"; do
+    case "$package" in
+      git)
+        /bin/cat > "$FAKE_BIN/git" <<'"'"'SCRIPT'"'"'
+#!/bin/bash
+printf "git version 2.45.0\n"
+SCRIPT
+        /bin/chmod +x "$FAKE_BIN/git"
+        ;;
+    esac
+  done
+fi'
 }
 
 write_fake_curl() {
@@ -142,6 +157,27 @@ run_install_script() {
       PATH="$fake_bin" \
       FAKE_BIN="$fake_bin" \
       TEST_LOG="$log_file" \
+      "$BASH" "$script"
+  fi
+}
+
+run_install_script_as_root() {
+  local script="$1"
+
+  if [[ -f "$os_release_file" ]]; then
+    run env \
+      PATH="$fake_bin" \
+      FAKE_BIN="$fake_bin" \
+      TEST_LOG="$log_file" \
+      OS_RELEASE_FILE="$os_release_file" \
+      SCRIPTS_RUN_AS_ROOT=1 \
+      "$BASH" "$script"
+  else
+    run env \
+      PATH="$fake_bin" \
+      FAKE_BIN="$fake_bin" \
+      TEST_LOG="$log_file" \
+      SCRIPTS_RUN_AS_ROOT=1 \
       "$BASH" "$script"
   fi
 }
