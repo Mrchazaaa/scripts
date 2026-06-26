@@ -17,6 +17,20 @@ Or run an individual script from `src`:
 curl -fsSL https://raw.githubusercontent.com/Mrchazaaa/scripts/main/src/install-git.sh | bash
 ```
 
+The nvim installer asks whether to clone your config into
+`${XDG_CONFIG_HOME:-$HOME/.config}/nvim` when run from an interactive terminal.
+You can also opt in directly:
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/Mrchazaaa/scripts/main/src/install-nvim.sh | bash -s -- --with-vimconfig
+```
+
+When running through `main.sh`, enable the same option with:
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/Mrchazaaa/scripts/main/main.sh | INSTALL_NVIM_CONFIG=1 bash
+```
+
 `main.sh` provides an interactive terminal prompt for selecting which scripts
 from `src` should be executed.
 

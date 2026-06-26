@@ -32,6 +32,11 @@ write_fake_command() {
   case "$command_name" in
     git)
       write_executable "$fake_bin/git" '#!/bin/bash
+if [[ "$1" == "clone" ]]; then
+  printf "git %s\n" "$*" >> "$TEST_LOG"
+  /bin/mkdir -p "$3"
+  exit 0
+fi
 printf "git version 2.45.0\n"'
       ;;
     tmux)
@@ -64,6 +69,11 @@ if [[ "$1" == "install" ]]; then
       git)
         /bin/cat > "$FAKE_BIN/git" <<'"'"'SCRIPT'"'"'
 #!/bin/bash
+if [[ "$1" == "clone" ]]; then
+  printf "git %s\n" "$*" >> "$TEST_LOG"
+  /bin/mkdir -p "$3"
+  exit 0
+fi
 printf "git version 2.45.0\n"
 SCRIPT
         /bin/chmod +x "$FAKE_BIN/git"
@@ -145,6 +155,11 @@ if [[ "$1" == "apt-get" && "$2" == "install" ]]; then
       git)
         /bin/cat > "$FAKE_BIN/git" <<'"'"'SCRIPT'"'"'
 #!/bin/bash
+if [[ "$1" == "clone" ]]; then
+  printf "git %s\n" "$*" >> "$TEST_LOG"
+  /bin/mkdir -p "$3"
+  exit 0
+fi
 printf "git version 2.45.0\n"
 SCRIPT
         /bin/chmod +x "$FAKE_BIN/git"
@@ -181,41 +196,51 @@ write_os_release() {
 
 run_install_script() {
   local script="$1"
+  shift
 
   if [[ -f "$os_release_file" ]]; then
     run env \
       PATH="$fake_bin" \
       FAKE_BIN="$fake_bin" \
+      HOME="$case_dir/home" \
+      XDG_CONFIG_HOME="$case_dir/config" \
       TEST_LOG="$log_file" \
       OS_RELEASE_FILE="$os_release_file" \
-      "$BASH" "$script"
+      "$BASH" "$script" "$@"
   else
     run env \
       PATH="$fake_bin" \
       FAKE_BIN="$fake_bin" \
+      HOME="$case_dir/home" \
+      XDG_CONFIG_HOME="$case_dir/config" \
       TEST_LOG="$log_file" \
-      "$BASH" "$script"
+      "$BASH" "$script" "$@"
   fi
 }
 
 run_install_script_as_root() {
   local script="$1"
+  shift
 
   if [[ -f "$os_release_file" ]]; then
     run env \
       PATH="$fake_bin" \
       FAKE_BIN="$fake_bin" \
+      HOME="$case_dir/home" \
+      XDG_CONFIG_HOME="$case_dir/config" \
       TEST_LOG="$log_file" \
       OS_RELEASE_FILE="$os_release_file" \
       SCRIPTS_RUN_AS_ROOT=1 \
-      "$BASH" "$script"
+      "$BASH" "$script" "$@"
   else
     run env \
       PATH="$fake_bin" \
       FAKE_BIN="$fake_bin" \
+      HOME="$case_dir/home" \
+      XDG_CONFIG_HOME="$case_dir/config" \
       TEST_LOG="$log_file" \
       SCRIPTS_RUN_AS_ROOT=1 \
-      "$BASH" "$script"
+      "$BASH" "$script" "$@"
   fi
 }
 
