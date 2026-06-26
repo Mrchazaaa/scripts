@@ -19,3 +19,19 @@ curl -fsSL https://raw.githubusercontent.com/Mrchazaaa/scripts/main/src/install-
 
 `main.sh` provides an interactive terminal prompt for selecting which scripts
 from `src` should be executed.
+
+## Tests
+
+The test suite uses [bats-core](https://github.com/bats-core/bats-core).
+On Debian/Ubuntu, install it with:
+
+```sh
+sudo apt-get update
+sudo apt-get install -y bats
+```
+
+Then run:
+
+```sh
+bats tests
+```

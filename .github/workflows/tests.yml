@@ -12,5 +12,8 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v4
 
+      - name: Install bats-core
+        run: sudo apt-get update && sudo apt-get install -y bats
+
       - name: Run install script tests
-        run: bash tests/run-install-script-tests.sh
+        run: bats tests
