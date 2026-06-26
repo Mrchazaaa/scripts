@@ -19,7 +19,8 @@ curl -fsSL https://download.docker.com/linux/ubuntu/gpg \
   | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
 sudo chmod a+r /etc/apt/keyrings/docker.gpg
 
-. /etc/os-release
+os_release_file="${OS_RELEASE_FILE:-/etc/os-release}"
+. "$os_release_file"
 codename="${VERSION_CODENAME:-}"
 if [[ -z "$codename" ]]; then
   echo "Could not determine Ubuntu/Debian codename from /etc/os-release." >&2

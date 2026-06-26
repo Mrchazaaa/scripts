@@ -1,5 +1,7 @@
 # scripts
 
+[![Tests](https://github.com/Mrchazaaa/scripts/actions/workflows/tests.yml/badge.svg)](https://github.com/Mrchazaaa/scripts/actions/workflows/tests.yml)
+
 Personal development scripts for my own setup and day-to-day use.
 
 This repo is intended to be run by piping scripts from `curl` into `bash`.
