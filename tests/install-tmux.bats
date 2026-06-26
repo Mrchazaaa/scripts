@@ -34,3 +34,15 @@ setup() {
   assert_log_contains "sudo apt-get install -y tmux"
   assert_output_contains "Installed tmux 3.4"
 }
+
+@test "install-tmux installs tmux directly when running as root" {
+  write_fake_apt_get
+
+  run_install_script_as_root "$repo_root/src/install-tmux.sh"
+
+  [ "$status" -eq 0 ]
+  assert_log_contains "apt-get update"
+  assert_log_contains "apt-get install -y tmux"
+  refute_log_contains "sudo"
+  assert_output_contains "Installed tmux 3.4"
+}

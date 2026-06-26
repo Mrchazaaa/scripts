@@ -11,7 +11,21 @@ if ! command -v apt-get >/dev/null 2>&1; then
   exit 1
 fi
 
-sudo apt-get update
-sudo apt-get install -y neovim
+run_as_root() {
+  if [[ "${SCRIPTS_RUN_AS_ROOT:-0}" == 1 || "$EUID" -eq 0 ]]; then
+    "$@"
+    return
+  fi
+
+  if ! command -v sudo >/dev/null 2>&1; then
+    echo "sudo is required when not running as root." >&2
+    exit 1
+  fi
+
+  sudo "$@"
+}
+
+run_as_root apt-get update
+run_as_root apt-get install -y neovim
 
 echo "Installed $(nvim --version | head -n 1)"

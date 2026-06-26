@@ -68,6 +68,27 @@ printf "git version 2.45.0\n"
 SCRIPT
         /bin/chmod +x "$FAKE_BIN/git"
         ;;
+      tmux)
+        /bin/cat > "$FAKE_BIN/tmux" <<'"'"'SCRIPT'"'"'
+#!/bin/bash
+printf "tmux 3.4\n"
+SCRIPT
+        /bin/chmod +x "$FAKE_BIN/tmux"
+        ;;
+      neovim)
+        /bin/cat > "$FAKE_BIN/nvim" <<'"'"'SCRIPT'"'"'
+#!/bin/bash
+printf "NVIM v0.10.0\nBuild type: Release\n"
+SCRIPT
+        /bin/chmod +x "$FAKE_BIN/nvim"
+        ;;
+      docker-ce)
+        /bin/cat > "$FAKE_BIN/docker" <<'"'"'SCRIPT'"'"'
+#!/bin/bash
+printf "Docker version 27.0.0, build test\n"
+SCRIPT
+        /bin/chmod +x "$FAKE_BIN/docker"
+        ;;
     esac
   done
 fi'
@@ -87,6 +108,22 @@ else
   printf "unexpected dpkg call: %s\n" "$*" >&2
   exit 1
 fi'
+}
+
+write_fake_root_admin_commands() {
+  write_executable "$fake_bin/install" '#!/bin/bash
+printf "install %s\n" "$*" >> "$TEST_LOG"'
+
+  write_executable "$fake_bin/gpg" '#!/bin/bash
+printf "gpg %s\n" "$*" >> "$TEST_LOG"
+/bin/cat >/dev/null'
+
+  write_executable "$fake_bin/chmod" '#!/bin/bash
+printf "chmod %s\n" "$*" >> "$TEST_LOG"'
+
+  write_executable "$fake_bin/tee" '#!/bin/bash
+printf "tee %s\n" "$*" >> "$TEST_LOG"
+/bin/cat >/dev/null'
 }
 
 write_fake_sudo() {

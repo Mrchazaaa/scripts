@@ -11,13 +11,27 @@ if ! command -v apt-get >/dev/null 2>&1; then
   exit 1
 fi
 
-sudo apt-get update
-sudo apt-get install -y ca-certificates curl gnupg
+run_as_root() {
+  if [[ "${SCRIPTS_RUN_AS_ROOT:-0}" == 1 || "$EUID" -eq 0 ]]; then
+    "$@"
+    return
+  fi
 
-sudo install -m 0755 -d /etc/apt/keyrings
+  if ! command -v sudo >/dev/null 2>&1; then
+    echo "sudo is required when not running as root." >&2
+    exit 1
+  fi
+
+  sudo "$@"
+}
+
+run_as_root apt-get update
+run_as_root apt-get install -y ca-certificates curl gnupg
+
+run_as_root install -m 0755 -d /etc/apt/keyrings
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg \
-  | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
-sudo chmod a+r /etc/apt/keyrings/docker.gpg
+  | run_as_root gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+run_as_root chmod a+r /etc/apt/keyrings/docker.gpg
 
 os_release_file="${OS_RELEASE_FILE:-/etc/os-release}"
 . "$os_release_file"
@@ -40,10 +54,10 @@ esac
 arch="$(dpkg --print-architecture)"
 echo \
   "deb [arch=${arch} signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/${docker_repo_os} ${codename} stable" \
-  | sudo tee /etc/apt/sources.list.d/docker.list >/dev/null
+  | run_as_root tee /etc/apt/sources.list.d/docker.list >/dev/null
 
-sudo apt-get update
-sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+run_as_root apt-get update
+run_as_root apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 
 echo "Installed $(docker --version)"
 echo "To run docker without sudo, run: sudo usermod -aG docker \"$USER\""
