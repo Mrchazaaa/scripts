@@ -17,8 +17,10 @@ Or run an individual script from `src`:
 curl -fsSL https://raw.githubusercontent.com/Mrchazaaa/scripts/main/src/install-git.sh | bash
 ```
 
-The nvim installer asks whether to clone your config into
-`${XDG_CONFIG_HOME:-$HOME/.config}/nvim` when run from an interactive terminal.
+The nvim installer asks whether to install your config when run from an
+interactive terminal. It clones the vimconfig checkout into
+`${XDG_CONFIG_HOME:-$HOME/.config}/nvim/vimconfig` and runs its installer with
+`--nvim`.
 You can also opt in directly:
 
 ```sh

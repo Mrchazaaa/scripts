@@ -35,6 +35,12 @@ write_fake_command() {
 if [[ "$1" == "clone" ]]; then
   printf "git %s\n" "$*" >> "$TEST_LOG"
   /bin/mkdir -p "$3"
+  /bin/mkdir -p "$3/.git"
+  /bin/cat > "$3/install.sh" <<'"'"'INSTALLER'"'"'
+#!/bin/bash
+printf "vimconfig install.sh VIMCONFIG_INSTALL_DIR=%s args=%s\n" "$VIMCONFIG_INSTALL_DIR" "$*" >> "$TEST_LOG"
+INSTALLER
+  /bin/chmod +x "$3/install.sh"
   exit 0
 fi
 printf "git version 2.45.0\n"'
@@ -72,6 +78,12 @@ if [[ "$1" == "install" ]]; then
 if [[ "$1" == "clone" ]]; then
   printf "git %s\n" "$*" >> "$TEST_LOG"
   /bin/mkdir -p "$3"
+  /bin/mkdir -p "$3/.git"
+  /bin/cat > "$3/install.sh" <<'"'"'INSTALLER'"'"'
+#!/bin/bash
+printf "vimconfig install.sh VIMCONFIG_INSTALL_DIR=%s args=%s\n" "$VIMCONFIG_INSTALL_DIR" "$*" >> "$TEST_LOG"
+INSTALLER
+  /bin/chmod +x "$3/install.sh"
   exit 0
 fi
 printf "git version 2.45.0\n"
@@ -158,6 +170,12 @@ if [[ "$1" == "apt-get" && "$2" == "install" ]]; then
 if [[ "$1" == "clone" ]]; then
   printf "git %s\n" "$*" >> "$TEST_LOG"
   /bin/mkdir -p "$3"
+  /bin/mkdir -p "$3/.git"
+  /bin/cat > "$3/install.sh" <<'"'"'INSTALLER'"'"'
+#!/bin/bash
+printf "vimconfig install.sh VIMCONFIG_INSTALL_DIR=%s args=%s\n" "$VIMCONFIG_INSTALL_DIR" "$*" >> "$TEST_LOG"
+INSTALLER
+  /bin/chmod +x "$3/install.sh"
   exit 0
 fi
 printf "git version 2.45.0\n"

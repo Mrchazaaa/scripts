@@ -2,14 +2,14 @@
 set -euo pipefail
 
 install_config="${INSTALL_NVIM_CONFIG:-}"
-vimconfig_repo="https://github.com/Mrchazaaa/vimconfig"
+vimconfig_repo="https://github.com/Mrchazaaa/vimconfig.git"
 
 usage() {
   printf "%s\n" \
     "Usage: install-nvim.sh [--with-vimconfig]" \
     "" \
     "Options:" \
-    "  --with-vimconfig  Clone ${vimconfig_repo} into the nvim config directory." \
+    "  --with-vimconfig  Install the nvim config from ${vimconfig_repo}." \
     "  -h, --help        Show this help message." \
     "" \
     "You can also set INSTALL_NVIM_CONFIG=1 to install the config or 0 to skip the prompt."
@@ -69,12 +69,16 @@ fi
 
 prompt_for_vimconfig
 
+config_home="${XDG_CONFIG_HOME:-${HOME}/.config}"
+nvim_config_dir="${config_home}/nvim"
+vimconfig_dir="${VIMCONFIG_INSTALL_DIR:-${nvim_config_dir}/vimconfig}"
+
 if command -v git >/dev/null 2>&1; then
   git_installed=1
 fi
 
 needs_apt=0
-if [[ "$nvim_installed" -eq 0 || ( "$install_config" == 1 && "$git_installed" -eq 0 ) ]]; then
+if [[ "$nvim_installed" -eq 0 || ( "$install_config" == 1 && ! -d "$vimconfig_dir/.git" && "$git_installed" -eq 0 ) ]]; then
   needs_apt=1
 fi
 
@@ -104,7 +108,7 @@ if [[ "$needs_apt" -eq 1 ]]; then
     packages+=(neovim)
   fi
 
-  if [[ "$install_config" == 1 && "$git_installed" -eq 0 ]]; then
+  if [[ "$install_config" == 1 && ! -d "$vimconfig_dir/.git" && "$git_installed" -eq 0 ]]; then
     packages+=(git)
   fi
 
@@ -117,15 +121,28 @@ if [[ "$needs_apt" -eq 1 ]]; then
 fi
 
 if [[ "$install_config" == 1 ]]; then
-  config_home="${XDG_CONFIG_HOME:-${HOME}/.config}"
-  nvim_config_dir="${config_home}/nvim"
+  if [[ -d "$vimconfig_dir/.git" ]]; then
+    echo "vimconfig checkout already exists at ${vimconfig_dir}; leaving it unchanged."
+  else
+    if [[ -e "$vimconfig_dir" ]]; then
+      echo "${vimconfig_dir} already exists but is not a Git checkout. Move it aside or set VIMCONFIG_INSTALL_DIR to another path." >&2
+      exit 1
+    fi
 
-  if [[ -e "$nvim_config_dir" ]]; then
-    echo "nvim config already exists at ${nvim_config_dir}; leaving it unchanged."
-    exit 0
+    vimconfig_parent="${vimconfig_dir%/*}"
+    if [[ "$vimconfig_parent" == "$vimconfig_dir" ]]; then
+      vimconfig_parent="."
+    fi
+
+    /bin/mkdir -p "$vimconfig_parent"
+    git clone "$vimconfig_repo" "$vimconfig_dir"
   fi
 
-  /bin/mkdir -p "$config_home"
-  git clone "$vimconfig_repo" "$nvim_config_dir"
-  echo "Installed nvim config from ${vimconfig_repo} to ${nvim_config_dir}"
+  if [[ ! -x "$vimconfig_dir/install.sh" ]]; then
+    echo "vimconfig installer not found or not executable: ${vimconfig_dir}/install.sh" >&2
+    exit 1
+  fi
+
+  VIMCONFIG_INSTALL_DIR="$vimconfig_dir" "$vimconfig_dir/install.sh" --nvim
+  echo "Installed nvim config from ${vimconfig_repo} to ${vimconfig_dir}"
 fi
