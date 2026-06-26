@@ -2,8 +2,13 @@
 set -euo pipefail
 
 repo_raw_base="https://raw.githubusercontent.com/Mrchazaaa/scripts/main"
-script_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd -P)"
-src_dir="${script_dir}/src"
+script_dir=""
+src_dir=""
+
+if [[ -n "${BASH_SOURCE[0]:-}" ]]; then
+  script_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd -P)"
+  src_dir="${script_dir}/src"
+fi
 
 fallback_scripts=(
   "install-git.sh"
@@ -30,13 +35,17 @@ fi
 
 run_script() {
   local script_name="$1"
-  local local_script="${src_dir}/${script_name}"
+  local local_script=""
   local remote_script="${repo_raw_base}/src/${script_name}"
 
   echo
   echo "Running ${script_name}..."
 
-  if [[ -f "$local_script" ]]; then
+  if [[ -n "$src_dir" ]]; then
+    local_script="${src_dir}/${script_name}"
+  fi
+
+  if [[ -n "$local_script" && -f "$local_script" ]]; then
     bash "$local_script"
   else
     if ! command -v curl >/dev/null 2>&1; then
